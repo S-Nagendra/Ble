@@ -16,6 +16,7 @@ const bleEmitter = new NativeEventEmitter(BleManagerModule);
 
 import { stringToBytes } from "convert-string";
 import BleModal from "./BleModal";
+import BleInput from "./BleInput";
 const Buffer = require('buffer/').Buffer;
 
 const BleScanner = (props) => {
@@ -26,6 +27,9 @@ const BleScanner = (props) => {
     const [testMode, setTestMode] = useState('read');
     const ITEM_HEIGHT = 100;
     const [connectingPeripheral, setConnectingPeripheral] = useState(false);
+    const [displayInput, setDisplayInput] = useState(false);
+    const [peripheralValue, setPeripheralValue] = useState(null);
+    const [selectedPeripheral, setSelectedPeripheral] = useState(null);
 
     useEffect(() => {
         BleManager.start({ showAlert: false, forceLegacy: true })
@@ -113,6 +117,9 @@ const BleScanner = (props) => {
             peripherals.set(peripheral.id, peripheral);
             setList(Array.from(peripherals.values()));
         }
+        setTimeout(() => {
+            setConnectingPeripheral(false);
+        }, 500);
     }
 
     // handle updated value for characteristic
@@ -140,19 +147,41 @@ const BleScanner = (props) => {
         setList(Array.from(peripherals.values()));
     };
 
+    const updatePeripheralValue = (peripheral) => {
+        console.log("update peripheral:_", peripheral);
+        if (!peripheral) return;
+        BleManager.retrieveServices(peripheral.id).then((peripheralInfo) => {
+            console.log('Retrieved peripheral services', peripheralInfo);
+            const serviceUUID = '00001800-0000-1000-8000-00805f9b34fb';
+            // // device name - read, write
+            const charasteristicUUID = "00002a00-0000-1000-8000-00805f9b34fb";
+            const payload = peripheralValue;
+            const payloadBytes = stringToBytes(payload);
+            console.log('payload:', payload);
+            console.log("payload bytes:-", payloadBytes);
+
+            BleManager.write(peripheral.id, serviceUUID, charasteristicUUID, payloadBytes)
+                .then(() => {
+                    console.log('write response', payload);
+                    alert(`your "${payload}" is updated`);
+                })
+                .catch((error) => {
+                    console.log('write err', error);
+                });
+            setConnectingPeripheral(false)
+        })
+    }
+
     const connectAndTestPeripheral = (peripheral) => {
-        setConnectingPeripheral(true);
         if (!peripheral) {
-            setConnectingPeripheral(false);
             return;
         }
-
+        setConnectingPeripheral(true);
+        console.log("test mode:_-----------", testMode);
         if (peripheral.connected) {
             BleManager.disconnect(peripheral.id);
-            setConnectingPeripheral(false);
             return;
         }
-
         // connect to selected peripheral
         BleManager.connect(peripheral.id)
             .then(() => {
@@ -163,7 +192,6 @@ const BleScanner = (props) => {
                     p.connected = true;
                     return p;
                 });
-
                 // retrieve peripheral services info
                 BleManager.retrieveServices(peripheral.id).then((peripheralInfo) => {
                     console.log('Retrieved peripheral services', peripheralInfo);
@@ -193,7 +221,7 @@ const BleScanner = (props) => {
                     switch (testMode) {
                         case 'write':
                             // ===== test write data
-                            const payload = 'AMMA';
+                            const payload = peripheralValue;
                             const payloadBytes = stringToBytes(payload);
                             console.log('payload:', payload);
                             console.log("payload bytes:-", payloadBytes);
@@ -201,8 +229,7 @@ const BleScanner = (props) => {
                             BleManager.write(peripheral.id, serviceUUID, charasteristicUUID, payloadBytes)
                                 .then(() => {
                                     console.log('write response', payload);
-                                    alert(`your "${payload}" is stored to the food bank. Thank you!`);
-
+                                    alert(`your "${payload}" is updated`);
                                 })
                                 .catch((error) => {
                                     console.log('write err', error);
@@ -233,7 +260,6 @@ const BleScanner = (props) => {
                                         const data = buffer.toString();
                                         console.log('data', data);
                                         alert(`reading device name "${data}"`);
-
                                     }
                                 })
                                 .catch((error) => {
@@ -253,12 +279,13 @@ const BleScanner = (props) => {
                         default:
                             break;
                     }
+                    setConnectingPeripheral(false)
                 });
             })
             .catch((error) => {
                 console.log('Connection error', error);
+                setConnectingPeripheral(false)
             });
-            setConnectingPeripheral(false);
     };
 
     const getItemLayout = useCallback((data, index) => ({
@@ -268,7 +295,6 @@ const BleScanner = (props) => {
     }), [])
 
     const renderItem = useCallback(({ item }) => {
-        console.log("item:-", item);
         return (
             <View style={{
                 flexDirection: "row",
@@ -303,8 +329,12 @@ const BleScanner = (props) => {
                     <Text style={{ color: "#666", fontSize: 12 }}>{item.id}</Text>
                 </View>
                 <View
-                    style=
-                    {{ width: 100, height: "100%", justifyContent: "center" }}>
+                    style={{
+                        flex: 1,
+                        height: "100%",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}>
                     <TouchableOpacity
                         activeOpacity={0.7}
                         onPress={() => {
@@ -316,13 +346,33 @@ const BleScanner = (props) => {
                         }}
                         style={{
                             padding: 8,
+                            marginRight: 20,
                             borderRadius: 10,
                             backgroundColor: "green",
                             alignItems: "center",
                             justifyContent: "center",
                         }}>
-                        <Text style={{ color: "white" }}>CONNECT</Text>
+                        <Text style={{ color: "white" }}>{item.connected ? "DICONNECT" : "CONNECT"}</Text>
                     </TouchableOpacity>
+                    {item.connected && (
+                        <TouchableOpacity
+                            activeOpacity={0.7}
+                            onPress={() => {
+                                setSelectedPeripheral(item);
+                                setPeripheralValue(null);
+                                setDisplayInput(true);
+                            }}
+                            style={{
+                                padding: 5,
+                                borderRadius: 5,
+                                backgroundColor: "green",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                marginTop: 4
+                            }}>
+                            <Text style={{ color: "white" }}>{"Write"}</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         )
@@ -341,40 +391,53 @@ const BleScanner = (props) => {
                     <ActivityIndicator color={"yellow"} size={"large"} />
                 </BleModal>
             )}
-            <TouchableOpacity
-                activeOpacity={isScanning ? 1 : 0.7}
-                disabled={isScanning}
-                style={{
-                    height: 50,
-                    width: 150,
-                    backgroundColor: isScanning ? "#555" : "brown",
-                    borderRadius: 15,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    alignSelf: "center",
-                    marginVertical: 15
+            {displayInput && <BleInput
+                onChangeText={(val) => {
+                    setPeripheralValue(val)
                 }}
-                onPress={startScan}
-            >
-                <Text style={{ color: "white", fontSize: 16 }}>Scan BlE Devices</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                activeOpacity={isScanning ? 1 : 0.7}
-                disabled={isScanning}
-                style={{
-                    height: 50,
-                    width: 150,
-                    backgroundColor: isScanning ? "#555" : "brown",
-                    borderRadius: 15,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    alignSelf: "center",
-                    marginVertical: 15
+                value={peripheralValue}
+                onSubmitHandler={() => {
+                    setDisplayInput(false);
+                    updatePeripheralValue(selectedPeripheral);
                 }}
-                onPress={() => props.navigation.navigate('User_Contacts')}
-            >
-                <Text style={{ color: "white", fontSize: 16 }}>Display Contacts</Text>
-            </TouchableOpacity>
+            />}
+            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+                <TouchableOpacity
+                    activeOpacity={isScanning ? 1 : 0.7}
+                    disabled={isScanning}
+                    style={{
+                        height: 50,
+                        width: 150,
+                        backgroundColor: isScanning ? "#555" : "brown",
+                        borderRadius: 15,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        alignSelf: "center",
+                        marginVertical: 15
+                    }}
+                    onPress={startScan}
+                >
+                    <Text style={{ color: "white", fontSize: 16 }}>Scan BlE Devices</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    activeOpacity={isScanning ? 1 : 0.7}
+                    disabled={isScanning}
+                    style={{
+                        height: 50,
+                        width: 150,
+                        backgroundColor: isScanning ? "#555" : "brown",
+                        borderRadius: 15,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        alignSelf: "center",
+                        marginVertical: 15
+                    }}
+                    onPress={() => props.navigation.navigate('User_Contacts')}
+                >
+                    <Text style={{ color: "white", fontSize: 16 }}>Display Contacts</Text>
+                </TouchableOpacity>
+            </View>
+
             {isScanning && <ActivityIndicator style={{}} size={"large"} />}
             {!isScanning && displayPeripherals && (
                 <FlatList

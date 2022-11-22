@@ -3,7 +3,7 @@ import { View } from "react-native";
 
 const BleModal = (props) => {
     return (
-        <View style={{
+        <View style={[{
             top: 0,
             bottom: 0,
             right: 0,
@@ -14,7 +14,7 @@ const BleModal = (props) => {
             position: "absolute",
             alignItems:"center",
             justifyContent:"center"
-        }}>
+        }, props.style]}>
             {props.children}
         </View>
     )
