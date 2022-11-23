@@ -2,15 +2,12 @@ import React from "react";
 import { 
     View, 
     Text, 
-    NativeModules,
     TouchableOpacity 
 } from "react-native";
-
-const { CalendarModule } = NativeModules;
+import CalendarModule from "./CalendarModule";
 
 const BleConnect = props => {
     const onPress = () => {
-        console.log("onPress:_");
         CalendarModule.createCalendarEvent('testName', 'testLocation');
     };
     return(
