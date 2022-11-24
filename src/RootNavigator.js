@@ -7,10 +7,10 @@ import UserContacts from "./components/UserContacts";
 const RootStack = createNativeStackNavigator();
 
 const RootNavigator = (props) => {
-    return(
+    return (
         <RootStack.Navigator>
             <RootStack.Screen name="Scanner" component={BleScanner} />
-            <RootStack.Screen name="Connect" component={BleConnect}/>
+            <RootStack.Screen name="Connect" component={BleConnect} />
             <RootStack.Screen name="User_Contacts" component={UserContacts} />
         </RootStack.Navigator>
     )

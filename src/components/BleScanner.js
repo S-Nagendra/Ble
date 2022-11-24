@@ -437,6 +437,23 @@ const BleScanner = (props) => {
                     <Text style={{ color: "white", fontSize: 16 }}>Display Contacts</Text>
                 </TouchableOpacity>
             </View>
+            <TouchableOpacity
+                activeOpacity={isScanning ? 1 : 0.7}
+                disabled={isScanning}
+                style={{
+                    height: 50,
+                    width: 150,
+                    backgroundColor: isScanning ? "#555" : "brown",
+                    borderRadius: 15,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    alignSelf: "center",
+                    marginVertical: 15
+                }}
+                onPress={() => props.navigation.navigate('Connect')}
+            >
+                <Text style={{ color: "white", fontSize: 16 }}>Calendar Module</Text>
+            </TouchableOpacity>
 
             {isScanning && <ActivityIndicator style={{}} size={"large"} />}
             {!isScanning && displayPeripherals && (

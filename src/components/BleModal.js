@@ -10,10 +10,10 @@ const BleModal = (props) => {
             left: 0,
             backgroundColor: "#000",
             opacity: 0.5,
-            zIndex: 100, 
+            zIndex: 100,
             position: "absolute",
-            alignItems:"center",
-            justifyContent:"center"
+            alignItems: "center",
+            justifyContent: "center"
         }, props.style]}>
             {props.children}
         </View>
