@@ -25,6 +25,7 @@ public class CalendarModule extends ReactContextBaseJavaModule {
         Log.d("CalendarModule", "Create event called with name: " + name
                 + " and location: " + location);
         ReactApplicationContext context = getReactApplicationContext();
+//        Log.d("React application context", context);
         Intent i = new Intent(Intent.ACTION_EDIT);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Calendar calendarEvent = Calendar.getInstance();
