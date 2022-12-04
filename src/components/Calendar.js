@@ -17,9 +17,11 @@ const Calendar = (props) => {
             startDate,
             endDate
         }
+        //TODO - handle eventStartDate and eventEndDate in native code.
         const allDay = true;
         CalendarModule.createCalendarEvent(event, allDay);
     };
+
 
     return (
         <View style={{ flex: 1 }}>
