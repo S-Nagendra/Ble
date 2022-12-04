@@ -22,7 +22,6 @@ const Calendar = (props) => {
         CalendarModule.createCalendarEvent(event, allDay);
     };
 
-
     return (
         <View style={{ flex: 1 }}>
             {eventDialog &&
@@ -31,7 +30,7 @@ const Calendar = (props) => {
                         hideDialog={() => setEventDialog(false)}
                         eventHandler={({ title, location, startDate, endDate }) => {
                             setEventDialog(false);
-                            createEvent(title, location, startDate, endDate);
+                            createEvent(title, location, startDate.toString(), endDate.toString());
                         }}
                     />
                 </Dialog>
