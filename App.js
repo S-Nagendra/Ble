@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import RootNavigator from "./src/RootNavigator";
 
 const App = (props) => {
-  return(
+  return (
     <NavigationContainer>
       <RootNavigator />
     </NavigationContainer>

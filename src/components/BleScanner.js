@@ -15,8 +15,8 @@ const BleManagerModule = NativeModules.BleManager;
 const bleEmitter = new NativeEventEmitter(BleManagerModule);
 
 import { stringToBytes } from "convert-string";
-import BleModal from "./BleModal";
 import BleInput from "./BleInput";
+import Dialog from "./Dialog";
 const Buffer = require('buffer/').Buffer;
 
 const BleScanner = (props) => {
@@ -387,9 +387,9 @@ const BleScanner = (props) => {
     return (
         <View style={{ flex: 1 }}>
             {connectingPeripheral && (
-                <BleModal>
+                <Dialog visible={connectingPeripheral}>
                     <ActivityIndicator color={"yellow"} size={"large"} />
-                </BleModal>
+                </Dialog>
             )}
             {displayInput && <BleInput
                 onChangeText={(val) => {
@@ -418,62 +418,6 @@ const BleScanner = (props) => {
                     onPress={startScan}
                 >
                     <Text style={{ color: "white", fontSize: 16 }}>Scan BlE Devices</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    activeOpacity={isScanning ? 1 : 0.7}
-                    disabled={isScanning}
-                    style={{
-                        height: 50,
-                        width: 150,
-                        backgroundColor: isScanning ? "#555" : "brown",
-                        borderRadius: 15,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        alignSelf: "center",
-                        marginVertical: 15
-                    }}
-                    onPress={() => props.navigation.navigate('User_Contacts')}
-                >
-                    <Text style={{ color: "white", fontSize: 16 }}>Display Contacts</Text>
-                </TouchableOpacity>
-            </View>
-
-            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-                <TouchableOpacity
-                    activeOpacity={isScanning ? 1 : 0.7}
-                    disabled={isScanning}
-                    style={{
-                        height: 50,
-                        width: 150,
-                        backgroundColor: isScanning ? "#555" : "brown",
-                        borderRadius: 15,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        alignSelf: "center",
-                        marginVertical: 15
-                    }}
-                    onPress={() => {
-                        props.navigation.navigate("Map");
-                    }}
-                >
-                    <Text style={{ color: "white", fontSize: 16 }}>Map Module</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    activeOpacity={isScanning ? 1 : 0.7}
-                    disabled={isScanning}
-                    style={{
-                        height: 50,
-                        width: 150,
-                        backgroundColor: isScanning ? "#555" : "brown",
-                        borderRadius: 15,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        alignSelf: "center",
-                        marginVertical: 15
-                    }}
-                    onPress={() => props.navigation.navigate('Connect')}
-                >
-                    <Text style={{ color: "white", fontSize: 16 }}>Calendar Module</Text>
                 </TouchableOpacity>
             </View>
 
